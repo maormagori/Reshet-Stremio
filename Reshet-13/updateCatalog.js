@@ -18,7 +18,6 @@ const updateCatalog = async () => {
       seriesRes.data.category.children
     );
 
-    console.log(seriesMetaArray);
     CACHE_AGE = Date.now();
   } catch (err) {
     console.log("Error updating series catalog!");

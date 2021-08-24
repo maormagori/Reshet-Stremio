@@ -1,6 +1,6 @@
 const { addonBuilder } = require("stremio-addon-sdk");
 const { getCatalog } = require("./updateCatalog");
-const { getSeriesMeta } = require("./getSeries");
+const { getSeriesMeta, getEpisodeStream } = require("./getSeries");
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
 const manifest = {
@@ -25,6 +25,7 @@ const manifest = {
 const builder = new addonBuilder(manifest);
 
 builder.defineCatalogHandler(({ type, id, extra }) => {
+  console.log("request for catalog: " + type + " " + id);
   if (type !== "series") {
     return Promise.resolve({ meta: null });
   }
@@ -51,9 +52,8 @@ builder.defineMetaHandler(({ type, id }) => {
 
 builder.defineStreamHandler(({ type, id }) => {
   console.log("request for streams: " + type + " " + id);
-  // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineStreamHandler.md
-  // return no streams
-  return Promise.resolve({ streams: [] });
+
+  //return getEpisodeStream(id);
 });
 
 module.exports = builder.getInterface();

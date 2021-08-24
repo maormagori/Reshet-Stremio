@@ -89,4 +89,23 @@ const getSeriesEpisodes = async (id) => {
   }
 };
 
-module.exports = { getSeriesMeta };
+const getEpisodeStream = async (id) => {
+  try {
+    console.log("Trying to fetch vod item with id: " + id);
+    const vodItemRes = await axios.get(
+      `https://admin.applicaster.com/v12/accounts/32/broadcasters/1/vod_items/${id}.json?api%5BaccountsAccountId%5D=507fe3a029536c3edd000002&api%5Bbundle%5D=com.applicaster.iReshet&api%5Bbver%5D=32.1.5&api%5Bos_type%5D=android&api%5Bos_version%5D=28&api%5Bsig%5D=f73f3595d6ed92ee294361d260a4b8d1&api%5Bver%5D=1.2`
+    );
+
+    let vodItem = vodItemRes.vod_item;
+    let streamObj = {
+      url: vodItem.stream_url,
+      title: vodItem.source_file_name,
+    };
+    return { streams: [streamObj] };
+  } catch (err) {
+    console.log("Error thrown trying to get episode streams!");
+    console.log(err);
+  }
+};
+
+module.exports = { getSeriesMeta, getEpisodeStream };

@@ -17,6 +17,8 @@ const updateCatalog = async () => {
     seriesMetaArray = parseSeriesToMetaObjects(
       seriesRes.data.category.children
     );
+
+    console.log(seriesMetaArray);
     CACHE_AGE = Date.now();
   } catch (err) {
     console.log("Error updating series catalog!");
@@ -28,10 +30,10 @@ const parseSeriesToMetaObjects = (seriesArr) => {
   return seriesArr.map((series) => {
     images = JSON.parse(series.images_json);
     return {
-      id: series.id,
+      id: series.id.toString(),
       type: "series",
       name: series.name,
-      poster: images.image_base,
+      poster: images.large_thumbnail,
       posterShape: "landscape",
       description: series.description,
     };
@@ -40,11 +42,11 @@ const parseSeriesToMetaObjects = (seriesArr) => {
 
 const getCatalog = async () => {
   if (Date.now() - CACHE_AGE < CACHE_MAX_AGE) {
-    return seriesMetaArray;
+    return { metas: seriesMetaArray };
   }
 
   await updateCatalog();
-  return seriesMetaArray;
+  return { metas: seriesMetaArray };
 };
 
 updateCatalog();

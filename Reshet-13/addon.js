@@ -1,4 +1,5 @@
 const { addonBuilder } = require("stremio-addon-sdk");
+const { getCatalog } = require("./updateCatalog");
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
 const manifest = {
@@ -8,8 +9,10 @@ const manifest = {
   version: "0.0.1",
   catalogs: [
     {
-      type: "movie",
-      id: "top",
+      type: "series",
+      id: "14830",
+      name: "Reshet 13 Series",
+      extra: [{ name: "search", isRequired: false }],
     },
   ],
   resources: ["catalog", "stream", "meta"],
@@ -17,24 +20,27 @@ const manifest = {
   name: "Reshet 13",
   description:
     "Watch all the series from the famous Israeli channel Reshet 13!",
-  extra: [{ name: "search", isRequired: false }],
 };
 const builder = new addonBuilder(manifest);
 
 builder.defineCatalogHandler(({ type, id, extra }) => {
   console.log("request for catalogs: " + type + " " + id);
-  // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineCatalogHandler.md
-  return Promise.resolve({
-    metas: [
-      {
-        id: "tt1254207",
-        type: "movie",
-        name: "The Big Buck Bunny",
-        poster:
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
-      },
-    ],
-  });
+  if (type !== "series") {
+    return Promise.resolve({ meta: null });
+  }
+
+  if (extra.search) {
+    const search = async (searchTerm) => {
+      let filteredCatalog = await getCatalog();
+      filteredCatalog.metas = filteredCatalog.metas.filter((series) =>
+        series.name.includes(searchTerm)
+      );
+      return filteredCatalog;
+    };
+    return search(extra.search);
+  }
+
+  return getCatalog();
 });
 
 builder.defineMetaHandler(({ type, id }) => {
